@@ -1,2 +1,5 @@
-// System integration module
-// TODO: Implement hotkeys and clipboard integration
+pub mod hotkeys;
+pub mod clipboard;
+
+pub use hotkeys::HotkeyManager;
+pub use clipboard::ClipboardManager;

@@ -1,2 +1,5 @@
-// AI processing module
-// TODO: Implement Gemini 2.5 Flash integration
+pub mod gemini;
+pub mod types;
+
+pub use gemini::GeminiClient;
+pub use types::*;

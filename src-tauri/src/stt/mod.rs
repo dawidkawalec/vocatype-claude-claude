@@ -1,2 +1,5 @@
-// Speech-to-Text module
-// TODO: Implement Whisper integration
+pub mod whisper;
+pub mod types;
+
+pub use whisper::WhisperEngine;
+pub use types::*;

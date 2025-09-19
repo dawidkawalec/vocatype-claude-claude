@@ -19,12 +19,15 @@ fn main() {
             // System commands
             vocatype_temp_lib::commands::system_commands::register_hotkeys,
             vocatype_temp_lib::commands::system_commands::get_selected_text,
+            vocatype_temp_lib::commands::system_commands::copy_to_clipboard,
             
             // AI processing commands
             vocatype_temp_lib::commands::ai_commands::process_with_gemini,
             vocatype_temp_lib::commands::ai_commands::transcribe_audio,
+            vocatype_temp_lib::commands::ai_commands::initialize_whisper,
+            vocatype_temp_lib::commands::ai_commands::get_whisper_stats,
         ])
-        .setup(|app| {
+        .setup(|_app| {
             // Initialize logging
             tracing_subscriber::fmt::init();
             tracing::info!("🚀 VocaType starting up...");
