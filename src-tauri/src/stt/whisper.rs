@@ -80,7 +80,7 @@ impl WhisperEngine {
         
         // Check if model file exists (but don't actually load it)
         if !self.model_path.exists() {
-            error!("Whisper model not found at: {:?}", self.model_path);
+            warn!("Whisper model not found at: {:?}", self.model_path);
             info!("💡 To use real Whisper transcription:");
             info!("   1. Download a model (e.g., ggml-base.bin) from https://huggingface.co/ggerganov/whisper.cpp");
             info!("   2. Place it in ./models/ directory");
@@ -220,8 +220,8 @@ impl WhisperEngine {
             }
         }
         
-        error!("❌ Whisper model not found: {}", model_filename);
-        error!("Searched paths: {:?}", possible_paths);
+        warn!("❌ Whisper model not found: {}", model_filename);
+        warn!("Searched paths: {:?}", possible_paths);
         
         Err(STTError::ModelNotFound)
     }

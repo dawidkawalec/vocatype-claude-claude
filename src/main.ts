@@ -168,20 +168,20 @@ class VocaTypeApp {
       // Transcribe audio
       const transcription = await invoke('transcribe_audio', { audioData: audioData.data || [] }) as TauriResponse<TranscriptionResult>;
       console.log('Transcription:', transcription);
-      
+
       if (transcription.success && transcription.data) {
         this.state.transcribedText = transcription.data.text || 'No speech detected';
-        
+
         // Process with AI if we have transcribed text and it's not just a mock message
         if (transcription.data.text && !transcription.data.text.includes('[Mock') && !transcription.data.text.includes('[silence]')) {
           this.updateStatus('processing');
-          
+
           try {
-            const aiResponse = await invoke('process_with_gemini', { 
+            const aiResponse = await invoke('process_with_gemini', {
               text: transcription.data.text,
               instruction: 'improve'
             }) as TauriResponse<AIResponse>;
-            
+
             if (aiResponse.success && aiResponse.data) {
               this.state.transcribedText = aiResponse.data.text;
             }
@@ -190,7 +190,7 @@ class VocaTypeApp {
             // Continue with original transcription
           }
         }
-        
+
         this.showOutput();
       } else {
         this.state.transcribedText = 'Transcription failed';
@@ -211,7 +211,7 @@ class VocaTypeApp {
     try {
       const response = await invoke('get_audio_devices') as TauriResponse<AudioDevice[]>;
       console.log('Audio devices:', response);
-      
+
       if (response.success && response.data) {
         this.state.devices = response.data;
         this.updateDeviceList();
@@ -414,11 +414,11 @@ class VocaTypeApp {
     if (!performanceStats || !this.state.performanceSummary) return;
 
     const summary = this.state.performanceSummary;
-    
+
     // Update latency display
     const avgLatency = Math.round((summary.audioAvgMs + summary.vadAvgMs + summary.sttAvgMs) / 3);
     performanceStats.textContent = `Latency: ${avgLatency}ms | Health: ${summary.overallHealth}%`;
-    
+
     // Color coding based on health
     if (summary.overallHealth >= 90) {
       performanceStats.style.color = 'var(--color-success)';

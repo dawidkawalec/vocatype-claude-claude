@@ -52,8 +52,8 @@ hound = "3.5"
 dasp_sample = "0.11"
 rustfft = "6.1"
 
-# Speech-to-Text (Whisper)
-whisper-rs = { version = "0.10", features = ["metal"] }
+# Speech-to-Text (Future: add whisper-rs when needed)
+# whisper-rs = { version = "0.10", features = ["metal"] }
 bytemuck = "1.13"
 num_cpus = "1.16"
 dirs = "5.0"
