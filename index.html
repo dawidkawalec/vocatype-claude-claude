@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VocaType</title>
+  <script type="module" src="/src/main.ts" defer></script>
+</head>
+
+<body>
+  <!-- Always-on Mini Interface (40×300px) -->
+  <div class="mini-app" id="mini-app">
+    <!-- Status Indicator (Always Visible) -->
+    <div class="status-indicator" id="status-indicator" data-state="idle">
+      <div class="status-icon" id="status-icon">🎤</div>
+      <div class="audio-bars" id="audio-bars">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="status-timer" id="status-timer">00:00</div>
+    </div>
+
+    <!-- Expandable Action Panel (Hidden by default) -->
+    <div class="action-panel" id="action-panel" style="display: none;">
+      <!-- 5 Pre-defined Actions from PRD -->
+      <button class="action-btn" id="translate-en" data-action="translate_en">
+        <span class="action-icon">🇺🇸</span>
+        <span class="action-label">EN</span>
+      </button>
+
+      <button class="action-btn" id="translate-pl" data-action="translate_pl">
+        <span class="action-icon">🇵🇱</span>
+        <span class="action-label">PL</span>
+      </button>
+
+      <button class="action-btn" id="fix-grammar" data-action="fix_grammar">
+        <span class="action-icon">✏️</span>
+        <span class="action-label">Fix</span>
+      </button>
+
+      <button class="action-btn" id="summarize" data-action="summarize">
+        <span class="action-icon">📝</span>
+        <span class="action-label">Sum</span>
+      </button>
+
+      <button class="action-btn" id="expand" data-action="expand">
+        <span class="action-icon">📈</span>
+        <span class="action-label">Exp</span>
+      </button>
+
+      <!-- Settings Button -->
+      <button class="action-btn settings" id="settings-btn">
+        <span class="action-icon">⚙️</span>
+        <span class="action-label">Set</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Processing Overlay (for streaming AI responses) -->
+  <div class="processing-overlay" id="processing-overlay" style="display: none;">
+    <div class="processing-content">
+      <div class="processing-text" id="processing-text">Processing...</div>
+      <div class="processing-progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
