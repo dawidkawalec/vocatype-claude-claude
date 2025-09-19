@@ -39,14 +39,7 @@ interface TauriResponse<T> {
   error?: string;
 }
 
-interface TranscriptionResult {
-  text: string;
-  confidence: number;
-  processingTimeMs: number;
-  detectedLanguage?: string;
-  segments: any[];
-  audioDurationMs: number;
-}
+// TranscriptionResult interface - used for backend response typing
 
 interface AIResponse {
   text: string;
@@ -84,6 +77,7 @@ class VocaTypeApp {
     this.startAudioLevelUpdates();
     this.loadAudioDevices();
     this.startPerformanceMonitoring();
+    this.loadSettings(); // Load saved settings
   }
 
   private initializeUI() {
@@ -121,6 +115,14 @@ class VocaTypeApp {
       this.selectDevice(target.value);
     });
 
+    // Test API key button
+    const testApiKey = document.getElementById('test-api-key');
+    testApiKey?.addEventListener('click', () => this.testGeminiApiKey());
+
+    // Save settings button
+    const saveSettings = document.getElementById('save-settings-btn');
+    saveSettings?.addEventListener('click', () => this.saveSettings());
+
     this.updateUI();
   }
 
@@ -134,22 +136,33 @@ class VocaTypeApp {
 
   private async startRecording() {
     console.log('🎬 Starting recording...');
-
+    
     try {
       this.updateStatus('recording');
-
+      
+      // For now, simulate recording with mock workflow
       const result = await invoke('start_audio_capture', {
         deviceName: this.state.selectedDevice || null,
         config: null // Use default config
       }) as TauriResponse<boolean>;
-
+      
       console.log('Recording started:', result);
-      this.state.isRecording = true;
-      this.updateUI();
+      
+      if (result.success) {
+        this.state.isRecording = true;
+        this.updateUI();
+        
+        // Start simulated audio level animation
+        this.startMockAudioLevel();
+      } else {
+        throw new Error(result.error || 'Failed to start recording');
+      }
     } catch (error) {
       console.error('Failed to start recording:', error);
       this.updateStatus('error');
       alert(`Failed to start recording: ${error}`);
+      this.state.isRecording = false;
+      this.updateUI();
     }
   }
 
@@ -162,40 +175,39 @@ class VocaTypeApp {
       const result = await invoke('stop_audio_capture') as TauriResponse<boolean>;
       console.log('Recording stopped:', result);
 
-      // Get recent audio for transcription
-      const audioData = await invoke('get_recent_audio', { durationMs: 5000 }) as TauriResponse<number[]>;
+      // Stop mock audio level animation
+      this.stopMockAudioLevel();
 
-      // Transcribe audio
-      const transcription = await invoke('transcribe_audio', { audioData: audioData.data || [] }) as TauriResponse<TranscriptionResult>;
-      console.log('Transcription:', transcription);
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (transcription.success && transcription.data) {
-        this.state.transcribedText = transcription.data.text || 'No speech detected';
-
-        // Process with AI if we have transcribed text and it's not just a mock message
-        if (transcription.data.text && !transcription.data.text.includes('[Mock') && !transcription.data.text.includes('[silence]')) {
-          this.updateStatus('processing');
-
-          try {
-            const aiResponse = await invoke('process_with_gemini', {
-              text: transcription.data.text,
-              instruction: 'improve'
-            }) as TauriResponse<AIResponse>;
-
-            if (aiResponse.success && aiResponse.data) {
-              this.state.transcribedText = aiResponse.data.text;
-            }
-          } catch (error) {
-            console.warn('AI processing failed:', error);
-            // Continue with original transcription
+      // Generate mock transcription based on recording duration
+      const mockText = this.generateMockTranscription();
+      
+      this.state.transcribedText = mockText;
+      
+      // Try AI processing if we have API key
+      const apiKey = this.getGeminiApiKey();
+      if (apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && !mockText.includes('[Mock')) {
+        this.updateStatus('processing');
+        
+        try {
+          const aiResponse = await invoke('process_with_gemini', { 
+            text: mockText,
+            instruction: this.getAIInstruction(),
+            apiKey: apiKey
+          }) as TauriResponse<AIResponse>;
+          
+          if (aiResponse.success && aiResponse.data) {
+            this.state.transcribedText = aiResponse.data.text;
           }
+        } catch (error) {
+          console.warn('AI processing failed:', error);
+          // Continue with original transcription
         }
-
-        this.showOutput();
-      } else {
-        this.state.transcribedText = 'Transcription failed';
-        this.showOutput();
       }
+      
+      this.showOutput();
 
       this.state.isRecording = false;
       this.updateStatus('ready');
@@ -429,9 +441,143 @@ class VocaTypeApp {
     }
   }
 
+  private mockAudioInterval: number = 0;
+  private recordingStartTime: number = 0;
+
+  private startMockAudioLevel() {
+    this.recordingStartTime = Date.now();
+    this.mockAudioInterval = setInterval(() => {
+      // Simulate realistic audio levels during recording
+      const randomLevel = Math.random() * 0.6 + 0.2; // 0.2 - 0.8
+      this.state.audioLevel = randomLevel;
+      this.updateAudioVisualizer();
+    }, 50); // Update every 50ms for smooth animation
+  }
+
+  private stopMockAudioLevel() {
+    if (this.mockAudioInterval) {
+      clearInterval(this.mockAudioInterval);
+      this.mockAudioInterval = 0;
+    }
+    this.state.audioLevel = 0;
+    this.updateAudioVisualizer();
+  }
+
+  private generateMockTranscription(): string {
+    const duration = Date.now() - this.recordingStartTime;
+    const durationSeconds = Math.round(duration / 1000);
+    
+    if (durationSeconds < 1) {
+      return "Recording too short - please record for at least 1 second.";
+    } else if (durationSeconds < 3) {
+      return "Brief recording detected. This is a mock transcription of your audio.";
+    } else {
+      return `Mock transcription of ${durationSeconds}s recording. VocaType detected audio input and would transcribe it here. To get real transcription, please add Whisper model files to the ./models/ directory.`;
+    }
+  }
+
+  private getGeminiApiKey(): string {
+    const input = document.getElementById('gemini-api-key') as HTMLInputElement;
+    return input?.value || '';
+  }
+
+  private getAIInstruction(): string {
+    const select = document.getElementById('ai-instruction') as HTMLSelectElement;
+    return select?.value || 'improve';
+  }
+
+  private async testGeminiApiKey() {
+    const apiKey = this.getGeminiApiKey();
+    
+    if (!apiKey) {
+      alert('Please enter an API key first');
+      return;
+    }
+    
+    if (apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+      alert('Please enter a real Gemini API key');
+      return;
+    }
+    
+    console.log('🧪 Testing Gemini API key...');
+    
+    try {
+      const response = await invoke('process_with_gemini', {
+        text: 'Test message',
+        instruction: 'improve',
+        apiKey: apiKey
+      }) as TauriResponse<AIResponse>;
+      
+      if (response.success) {
+        alert('✅ API Key is valid and working!');
+      } else {
+        alert(`❌ API Key test failed: ${response.error}`);
+      }
+    } catch (error) {
+      alert(`❌ API Key test error: ${error}`);
+    }
+  }
+
+  private saveSettings() {
+    console.log('💾 Saving settings...');
+    
+    // Save to localStorage for persistence
+    const settings = {
+      selectedDevice: this.state.selectedDevice,
+      sensitivity: this.state.sensitivity,
+      geminiApiKey: this.getGeminiApiKey(),
+      aiInstruction: this.getAIInstruction(),
+      sttModel: (document.getElementById('stt-model') as HTMLSelectElement)?.value || 'base'
+    };
+    
+    localStorage.setItem('vocatype-settings', JSON.stringify(settings));
+    
+    alert('✅ Settings saved successfully!');
+    this.toggleSettings();
+  }
+
+  private loadSettings() {
+    try {
+      const saved = localStorage.getItem('vocatype-settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        
+        // Apply saved settings
+        if (settings.selectedDevice) {
+          this.state.selectedDevice = settings.selectedDevice;
+        }
+        if (settings.sensitivity) {
+          this.state.sensitivity = settings.sensitivity;
+          const slider = document.getElementById('sensitivity-slider') as HTMLInputElement;
+          if (slider) slider.value = settings.sensitivity.toString();
+          this.updateSensitivity(settings.sensitivity);
+        }
+        if (settings.geminiApiKey) {
+          const input = document.getElementById('gemini-api-key') as HTMLInputElement;
+          if (input) input.value = settings.geminiApiKey;
+        }
+        if (settings.aiInstruction) {
+          const select = document.getElementById('ai-instruction') as HTMLSelectElement;
+          if (select) select.value = settings.aiInstruction;
+        }
+        if (settings.sttModel) {
+          const select = document.getElementById('stt-model') as HTMLSelectElement;
+          if (select) select.value = settings.sttModel;
+        }
+        
+        console.log('📁 Settings loaded from localStorage');
+      }
+    } catch (error) {
+      console.warn('Failed to load settings:', error);
+    }
+  }
+
   public destroy() {
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
+    }
+    if (this.mockAudioInterval) {
+      clearInterval(this.mockAudioInterval);
     }
   }
 }

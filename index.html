@@ -59,24 +59,55 @@
       </div>
     </section>
 
-    <!-- Settings Panel (Hidden by default) -->
-    <section class="settings-panel" id="settings-panel" style="display: none;">
-      <h3>Settings</h3>
-      <div class="setting-group">
-        <label for="device-select">Audio Device:</label>
-        <select id="device-select">
-          <option value="">Loading devices...</option>
-        </select>
-      </div>
-      <div class="setting-group">
-        <label for="sensitivity-slider">VAD Sensitivity:</label>
-        <input type="range" id="sensitivity-slider" min="0" max="100" value="50" />
-        <span id="sensitivity-value">50%</span>
-      </div>
-      <div class="settings-actions">
-        <button class="action-btn" id="close-settings-btn">Close</button>
-      </div>
-    </section>
+      <!-- Settings Panel (Hidden by default) -->
+      <section class="settings-panel" id="settings-panel" style="display: none;">
+        <div class="settings-content">
+          <h3>Settings</h3>
+          
+          <div class="setting-group">
+            <label for="device-select">Audio Device:</label>
+            <select id="device-select">
+              <option value="">Loading devices...</option>
+            </select>
+          </div>
+          
+          <div class="setting-group">
+            <label for="sensitivity-slider">VAD Sensitivity:</label>
+            <input type="range" id="sensitivity-slider" min="0" max="100" value="50" />
+            <span id="sensitivity-value">50%</span>
+          </div>
+          
+          <div class="setting-group">
+            <label for="gemini-api-key">Gemini API Key:</label>
+            <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API key..." />
+            <button class="action-btn" id="test-api-key">Test Key</button>
+          </div>
+          
+          <div class="setting-group">
+            <label for="stt-model">STT Model:</label>
+            <select id="stt-model">
+              <option value="base">Base Model (Recommended)</option>
+              <option value="tiny">Tiny Model (Fastest)</option>
+              <option value="small">Small Model (Better Quality)</option>
+            </select>
+          </div>
+          
+          <div class="setting-group">
+            <label for="ai-instruction">AI Processing Mode:</label>
+            <select id="ai-instruction">
+              <option value="improve">Improve Text (Default)</option>
+              <option value="summarize">Summarize</option>
+              <option value="translate">Translate to English</option>
+              <option value="custom">Custom Instruction</option>
+            </select>
+          </div>
+          
+          <div class="settings-actions">
+            <button class="action-btn primary" id="save-settings-btn">Save Settings</button>
+            <button class="action-btn" id="close-settings-btn">Close</button>
+          </div>
+        </div>
+      </section>
 
     <!-- Footer -->
     <footer class="footer">

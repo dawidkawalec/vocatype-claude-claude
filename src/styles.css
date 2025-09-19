@@ -266,16 +266,49 @@ kbd {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: 12px;
+  padding: 0;
+  max-height: 70vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.settings-content {
   padding: 16px;
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.settings-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-content::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+  border-radius: 4px;
+}
+
+.settings-content::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+.settings-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
 
 .settings-panel h3 {
   margin-bottom: 16px;
   color: var(--color-text-primary);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-secondary);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .setting-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .setting-group label {
@@ -283,22 +316,44 @@ kbd {
   margin-bottom: 6px;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .setting-group select,
-.setting-group input[type="range"] {
+.setting-group input[type="range"],
+.setting-group input[type="password"],
+.setting-group input[type="text"] {
   width: 100%;
-  padding: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.setting-group input[type="password"]:focus,
+.setting-group input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.setting-group .action-btn {
+  margin-top: 8px;
+  width: auto;
+  padding: 6px 12px;
 }
 
 .settings-actions {
   display: flex;
+  gap: 8px;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-secondary);
 }
 
 /* Footer */
