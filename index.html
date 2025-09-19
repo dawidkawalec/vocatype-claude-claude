@@ -10,55 +10,70 @@
 </head>
 
 <body>
-  <!-- Always-on Mini Interface (40×300px) -->
-  <div class="mini-app" id="mini-app">
-    <!-- Status Indicator (Always Visible) -->
-    <div class="status-indicator" id="status-indicator" data-state="idle">
-      <div class="status-icon" id="status-icon">🎤</div>
-      <div class="audio-bars" id="audio-bars">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
+    <!-- Always-on Mini Interface (40×300px) -->
+    <div class="mini-app" id="mini-app">
+      <!-- Debug Info -->
+      <div style="color: white; font-size: 12px; margin-bottom: 10px;">
+        VocaType Debug v0.1
       </div>
-      <div class="status-timer" id="status-timer">00:00</div>
-    </div>
+      
+      <!-- Status Indicator (Always Visible) -->
+      <div class="status-indicator" id="status-indicator" data-state="idle" 
+           style="border: 2px solid #00ff00; background: #333; margin: 10px;">
+        <div class="status-icon" id="status-icon" style="font-size: 2rem; color: #3B82F6;">🎤</div>
+        <div style="color: white; font-size: 12px;">Click to expand</div>
+        <div class="audio-bars" id="audio-bars">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <div class="status-timer" id="status-timer">00:00</div>
+      </div>
 
-    <!-- Expandable Action Panel (Hidden by default) -->
-    <div class="action-panel" id="action-panel" style="display: none;">
-      <!-- 5 Pre-defined Actions from PRD -->
-      <button class="action-btn" id="translate-en" data-action="translate_en">
-        <span class="action-icon">🇺🇸</span>
-        <span class="action-label">EN</span>
-      </button>
-
-      <button class="action-btn" id="translate-pl" data-action="translate_pl">
-        <span class="action-icon">🇵🇱</span>
-        <span class="action-label">PL</span>
-      </button>
-
-      <button class="action-btn" id="fix-grammar" data-action="fix_grammar">
-        <span class="action-icon">✏️</span>
-        <span class="action-label">Fix</span>
-      </button>
-
-      <button class="action-btn" id="summarize" data-action="summarize">
-        <span class="action-icon">📝</span>
-        <span class="action-label">Sum</span>
-      </button>
-
-      <button class="action-btn" id="expand" data-action="expand">
-        <span class="action-icon">📈</span>
-        <span class="action-label">Exp</span>
-      </button>
-
-      <!-- Settings Button -->
-      <button class="action-btn settings" id="settings-btn">
-        <span class="action-icon">⚙️</span>
-        <span class="action-label">Set</span>
-      </button>
-    </div>
+      <!-- Expandable Action Panel -->
+      <div class="action-panel" id="action-panel" style="display: block; background: #444; padding: 10px;">
+        <div style="color: white; font-size: 14px; margin-bottom: 10px;">5 PRD Actions:</div>
+        
+        <!-- 5 Pre-defined Actions from PRD -->
+        <button class="action-btn" id="translate-en" data-action="translate_en" 
+                style="background: #555; color: white; margin: 5px; padding: 10px; border: 1px solid #3B82F6;">
+          <span class="action-icon">🇺🇸</span>
+          <span class="action-label">Translate EN</span>
+        </button>
+        
+        <button class="action-btn" id="translate-pl" data-action="translate_pl"
+                style="background: #555; color: white; margin: 5px; padding: 10px; border: 1px solid #3B82F6;">
+          <span class="action-icon">🇵🇱</span>
+          <span class="action-label">Translate PL</span>
+        </button>
+        
+        <button class="action-btn" id="fix-grammar" data-action="fix_grammar"
+                style="background: #555; color: white; margin: 5px; padding: 10px; border: 1px solid #3B82F6;">
+          <span class="action-icon">✏️</span>
+          <span class="action-label">Fix Grammar</span>
+        </button>
+        
+        <button class="action-btn" id="summarize" data-action="summarize"
+                style="background: #555; color: white; margin: 5px; padding: 10px; border: 1px solid #3B82F6;">
+          <span class="action-icon">📝</span>
+          <span class="action-label">Summarize</span>
+        </button>
+        
+        <button class="action-btn" id="expand" data-action="expand"
+                style="background: #555; color: white; margin: 5px; padding: 10px; border: 1px solid #3B82F6;">
+          <span class="action-icon">📈</span>
+          <span class="action-label">Expand</span>
+        </button>
+        
+        <!-- Settings Button -->
+        <button class="action-btn settings" id="settings-btn" data-action="settings"
+                style="background: #666; color: white; margin: 5px; padding: 10px; border: 1px solid #ff6600;">
+          <span class="action-icon">⚙️</span>
+          <span class="action-label">Settings</span>
+        </button>
+      </div>
   </div>
 
   <!-- Processing Overlay (for streaming AI responses) -->

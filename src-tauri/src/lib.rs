@@ -12,15 +12,39 @@ async fn get_selected_text() -> Result<serde_json::Value, String> {
 
 #[tauri::command]
 async fn process_text_action(text: String, action: String) -> Result<serde_json::Value, String> {
-    // TODO: Implement real AI processing
+    println!("🎯 Backend: Processing action '{}' for text: '{}'", action, text);
+    
+    // Simulate processing delay
+    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+    
     let processed_text = match action.as_str() {
-        "translate_en" => format!("[EN] {}", text),
-        "translate_pl" => format!("[PL] {}", text),
-        "fix_grammar" => format!("Fixed: {}", text),
-        "summarize" => format!("Summary: {}", text),
-        "expand" => format!("Expanded: {}", text),
-        _ => format!("Processed: {}", text)
+        "translate_en" => {
+            println!("🇺🇸 Translating to English");
+            format!("🇺🇸 [Translated to English]: {}", text)
+        },
+        "translate_pl" => {
+            println!("🇵🇱 Translating to Polish"); 
+            format!("🇵🇱 [Przetłumaczono na polski]: {}", text)
+        },
+        "fix_grammar" => {
+            println!("✏️ Fixing grammar");
+            format!("✏️ [Grammar fixed]: {}", text.replace("bad", "good").replace("grammer", "grammar"))
+        },
+        "summarize" => {
+            println!("📝 Summarizing text");
+            format!("📝 [Summary]: Brief summary of '{}'", text.chars().take(30).collect::<String>())
+        },
+        "expand" => {
+            println!("📈 Expanding text");
+            format!("📈 [Expanded]: This is an elaborated version of '{}' with additional context and details.", text)
+        },
+        _ => {
+            println!("❓ Unknown action: {}", action);
+            format!("❓ [Unknown action '{}']: {}", action, text)
+        }
     };
+    
+    println!("✅ Backend: Processed result: '{}'", processed_text);
     
     Ok(serde_json::json!({
         "success": true,

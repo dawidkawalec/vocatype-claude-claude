@@ -24,25 +24,54 @@ class VocaTypeMini {
   private audioVisualizerInterval: number = 0;
 
   constructor() {
-    this.initializeUI();
-    console.log('🚀 VocaType Mini Interface initialized');
+    console.log('🚀 VocaType Mini Interface starting...');
+    setTimeout(() => {
+      this.initializeUI();
+      console.log('✅ VocaType Mini Interface initialized');
+    }, 100); // Delay to ensure DOM is ready
   }
 
   private initializeUI() {
+    console.log('🔧 Initializing UI...');
+    
     // Status indicator click handler (expand/collapse action panel)
     const statusIndicator = document.getElementById('status-indicator');
-    statusIndicator?.addEventListener('click', () => this.toggleActionPanel());
+    console.log('🎯 Status indicator found:', !!statusIndicator);
+    
+    if (statusIndicator) {
+      statusIndicator.addEventListener('click', (e) => {
+        console.log('🎤 Status indicator clicked!');
+        e.preventDefault();
+        this.toggleActionPanel();
+      });
+      
+      // Also add visual feedback
+      statusIndicator.style.cursor = 'pointer';
+      statusIndicator.style.border = '2px solid #00ff00'; // Green border for debug
+    }
 
     // Action button handlers (5 pre-defined actions from PRD)
     const actionButtons = document.querySelectorAll('.action-btn');
-    actionButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
+    console.log('🎯 Action buttons found:', actionButtons.length);
+    
+    actionButtons.forEach((button, index) => {
+      const element = button as HTMLElement;
+      element.style.border = '1px solid #ff0000'; // Red border for debug
+      
+      element.addEventListener('click', (e) => {
+        console.log(`🎯 Action button ${index} clicked!`);
+        e.preventDefault();
+        e.stopPropagation();
+        
         const target = e.currentTarget as HTMLElement;
         const action = target.dataset.action;
-
+        console.log('🎯 Action:', action);
+        
         if (action === 'settings') {
+          console.log('⚙️ Opening settings...');
           this.openSettings();
         } else if (action) {
+          console.log(`🎯 Executing action: ${action}`);
           this.executeAction(action);
         }
       });
@@ -74,6 +103,8 @@ class VocaTypeMini {
   // Window behavior will be configured via tauri.conf.json
 
   private toggleActionPanel() {
+    console.log('🔄 Toggling action panel. Current state:', this.state.isActionPanelOpen);
+    
     if (this.state.isActionPanelOpen) {
       this.hideActionPanel();
     } else {
@@ -82,11 +113,16 @@ class VocaTypeMini {
   }
 
   private showActionPanel() {
+    console.log('📂 Showing action panel...');
     const actionPanel = document.getElementById('action-panel');
+    console.log('📂 Action panel found:', !!actionPanel);
+    
     if (actionPanel) {
       actionPanel.style.display = 'block';
+      actionPanel.style.background = '#444444'; // Dark background for visibility
       actionPanel.classList.remove('closing');
       this.state.isActionPanelOpen = true;
+      console.log('✅ Action panel shown');
     }
   }
 
