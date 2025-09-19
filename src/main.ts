@@ -1,5 +1,4 @@
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 
 // VocaType Always-On Mini Interface
 // PRD Compliant: 40×300px floating window with 4 states
@@ -21,14 +20,11 @@ class VocaTypeMini {
     currentAction: null
   };
 
-  private window = getCurrentWindow();
   private recordingTimer: number = 0;
   private audioVisualizerInterval: number = 0;
 
   constructor() {
     this.initializeUI();
-    this.setupWindowBehavior();
-    this.registerSystemTrayHandlers();
     console.log('🚀 VocaType Mini Interface initialized');
   }
 
@@ -75,25 +71,7 @@ class VocaTypeMini {
     this.updateUI();
   }
 
-  private async setupWindowBehavior() {
-    try {
-      // Set window to always on top
-      await this.window.setAlwaysOnTop(true);
-
-      // Position window (will be customizable in settings)
-      await this.window.setPosition({ x: 50, y: 100 });
-
-      console.log('✅ Window behavior configured');
-    } catch (error) {
-      console.error('Failed to setup window:', error);
-    }
-  }
-
-  private registerSystemTrayHandlers() {
-    // TODO: Implement system tray menu actions
-    // This will be connected to Rust backend
-    console.log('📌 System tray handlers registered');
-  }
+  // Window behavior will be configured via tauri.conf.json
 
   private toggleActionPanel() {
     if (this.state.isActionPanelOpen) {
@@ -173,8 +151,6 @@ class VocaTypeMini {
   private updateUI() {
     const statusIndicator = document.getElementById('status-indicator');
     const statusIcon = document.getElementById('status-icon');
-    const statusTimer = document.getElementById('status-timer');
-    const audioBars = document.getElementById('audio-bars');
 
     if (!statusIndicator || !statusIcon) return;
 
@@ -259,28 +235,7 @@ class VocaTypeMini {
     });
   }
 
-  private async startDictation() {
-    console.log('🎤 Starting dictation workflow...');
-
-    this.setState('listening');
-
-    try {
-      // Start audio capture via Rust backend
-      const result = await invoke('start_dictation') as any;
-
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-
-      // Audio capture is now active, UI will update via audio visualization
-      // STT and AI processing will be handled automatically by backend
-
-    } catch (error) {
-      console.error('Failed to start dictation:', error);
-      this.setState('error');
-      setTimeout(() => this.setState('idle'), 3000);
-    }
-  }
+  // Removed startDictation method - will be implemented in Phase 3
 
   private async openSettings() {
     try {
