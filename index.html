@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VocaType - AI Text Assistant</title>
+  <script type="module" src="/src/main.ts" defer></script>
+</head>
+
+<body>
+  <main class="app">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="title">VocaType</h1>
+      <p class="subtitle">AI-Powered Voice Assistant</p>
+    </header>
+
+    <!-- Status Display -->
+    <section class="status-panel">
+      <div class="status-indicator" id="status-indicator">
+        <span class="status-text" id="status-text">Ready</span>
+        <span class="status-dot" id="status-dot"></span>
+      </div>
+      <div class="hotkey-info">
+        Press <kbd>⌘ Shift V</kbd> to activate
+      </div>
+    </section>
+
+    <!-- Audio Visualizer -->
+    <section class="audio-section">
+      <div class="audio-visualizer" id="audio-visualizer">
+        <canvas id="audio-canvas" width="300" height="100"></canvas>
+        <div class="audio-level-text" id="audio-level-text">0%</div>
+      </div>
+    </section>
+
+    <!-- Control Buttons -->
+    <section class="controls">
+      <button class="control-btn primary" id="record-btn">
+        <span class="btn-icon" id="record-icon">🎤</span>
+        <span class="btn-text" id="record-text">Start Recording</span>
+      </button>
+
+      <button class="control-btn secondary" id="settings-btn">
+        <span class="btn-icon">⚙️</span>
+        <span class="btn-text">Settings</span>
+      </button>
+    </section>
+
+    <!-- Output Display -->
+    <section class="output-section" id="output-section" style="display: none;">
+      <h3>Transcribed Text:</h3>
+      <div class="output-text" id="output-text"></div>
+      <div class="output-actions">
+        <button class="action-btn" id="copy-btn">Copy</button>
+        <button class="action-btn" id="clear-btn">Clear</button>
+      </div>
+    </section>
+
+    <!-- Settings Panel (Hidden by default) -->
+    <section class="settings-panel" id="settings-panel" style="display: none;">
+      <h3>Settings</h3>
+      <div class="setting-group">
+        <label for="device-select">Audio Device:</label>
+        <select id="device-select">
+          <option value="">Loading devices...</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label for="sensitivity-slider">VAD Sensitivity:</label>
+        <input type="range" id="sensitivity-slider" min="0" max="100" value="50" />
+        <span id="sensitivity-value">50%</span>
+      </div>
+      <div class="settings-actions">
+        <button class="action-btn" id="close-settings-btn">Close</button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span class="version">v0.1.0</span>
+      <span class="performance-stats" id="performance-stats">Latency: --ms</span>
+    </footer>
+  </main>
+</body>
+
+</html>
