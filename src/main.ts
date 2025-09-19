@@ -10,6 +10,7 @@ interface AppState {
   sensitivity: number;
   transcribedText: string;
   latency: number;
+  performanceSummary: PerformanceSummary | null;
 }
 
 interface AudioDevice {
@@ -19,15 +20,44 @@ interface AudioDevice {
   sampleRate: number;
 }
 
-interface AudioStats {
-  currentLevel: number;
-  peakLevel: number;
-  averageLevel: number;
-  framesProcessed: number;
-  framesDropped: number;
-  bufferUsage: number;
-  processingLatencyMs: number;
-  speechDetectionRate: number;
+// AudioStats interface removed - using performance monitoring instead
+
+interface PerformanceSummary {
+  overallHealth: number;
+  audioAvgMs: number;
+  vadAvgMs: number;
+  sttAvgMs: number;
+  aiAvgMs: number;
+  systemAvgMs: number;
+  targetCompliance: number;
+  totalViolations: number;
+}
+
+interface TauriResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+interface TranscriptionResult {
+  text: string;
+  confidence: number;
+  processingTimeMs: number;
+  detectedLanguage?: string;
+  segments: any[];
+  audioDurationMs: number;
+}
+
+interface AIResponse {
+  text: string;
+  processingTimeMs: number;
+  confidence: number;
+  tokenUsage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  wasStreamed: boolean;
 }
 
 class VocaTypeApp {
@@ -39,7 +69,8 @@ class VocaTypeApp {
     selectedDevice: '',
     sensitivity: 50,
     transcribedText: '',
-    latency: 0
+    latency: 0,
+    performanceSummary: null
   };
 
   private canvas: HTMLCanvasElement;
@@ -52,6 +83,7 @@ class VocaTypeApp {
     this.initializeUI();
     this.startAudioLevelUpdates();
     this.loadAudioDevices();
+    this.startPerformanceMonitoring();
   }
 
   private initializeUI() {
@@ -109,7 +141,7 @@ class VocaTypeApp {
       const result = await invoke('start_audio_capture', {
         deviceName: this.state.selectedDevice || null,
         config: null // Use default config
-      });
+      }) as TauriResponse<boolean>;
 
       console.log('Recording started:', result);
       this.state.isRecording = true;
@@ -127,18 +159,43 @@ class VocaTypeApp {
     try {
       this.updateStatus('processing');
 
-      const result = await invoke('stop_audio_capture');
+      const result = await invoke('stop_audio_capture') as TauriResponse<boolean>;
       console.log('Recording stopped:', result);
 
       // Get recent audio for transcription
-      const audioData = await invoke('get_recent_audio', { durationMs: 5000 });
+      const audioData = await invoke('get_recent_audio', { durationMs: 5000 }) as TauriResponse<number[]>;
 
       // Transcribe audio
-      const transcription = await invoke('transcribe_audio', { audioData });
+      const transcription = await invoke('transcribe_audio', { audioData: audioData.data || [] }) as TauriResponse<TranscriptionResult>;
       console.log('Transcription:', transcription);
-
-      this.state.transcribedText = transcription.data || 'No speech detected';
-      this.showOutput();
+      
+      if (transcription.success && transcription.data) {
+        this.state.transcribedText = transcription.data.text || 'No speech detected';
+        
+        // Process with AI if we have transcribed text and it's not just a mock message
+        if (transcription.data.text && !transcription.data.text.includes('[Mock') && !transcription.data.text.includes('[silence]')) {
+          this.updateStatus('processing');
+          
+          try {
+            const aiResponse = await invoke('process_with_gemini', { 
+              text: transcription.data.text,
+              instruction: 'improve'
+            }) as TauriResponse<AIResponse>;
+            
+            if (aiResponse.success && aiResponse.data) {
+              this.state.transcribedText = aiResponse.data.text;
+            }
+          } catch (error) {
+            console.warn('AI processing failed:', error);
+            // Continue with original transcription
+          }
+        }
+        
+        this.showOutput();
+      } else {
+        this.state.transcribedText = 'Transcription failed';
+        this.showOutput();
+      }
 
       this.state.isRecording = false;
       this.updateStatus('ready');
@@ -152,9 +209,9 @@ class VocaTypeApp {
 
   private async loadAudioDevices() {
     try {
-      const response = await invoke('get_audio_devices');
+      const response = await invoke('get_audio_devices') as TauriResponse<AudioDevice[]>;
       console.log('Audio devices:', response);
-
+      
       if (response.success && response.data) {
         this.state.devices = response.data;
         this.updateDeviceList();
@@ -284,7 +341,7 @@ class VocaTypeApp {
   private async startAudioLevelUpdates() {
     const updateLevel = async () => {
       try {
-        const response = await invoke('get_audio_level');
+        const response = await invoke('get_audio_level') as TauriResponse<number>;
         if (response.success) {
           this.state.audioLevel = response.data || 0;
           this.updateAudioVisualizer();
@@ -330,6 +387,45 @@ class VocaTypeApp {
     const levelText = document.getElementById('audio-level-text');
     if (levelText) {
       levelText.textContent = `${Math.round(level * 100)}%`;
+    }
+  }
+
+  private async startPerformanceMonitoring() {
+    const updatePerformance = async () => {
+      try {
+        const response = await invoke('get_performance_summary') as TauriResponse<PerformanceSummary>;
+        if (response.success && response.data) {
+          this.state.performanceSummary = response.data;
+          this.updatePerformanceDisplay();
+        }
+      } catch (error) {
+        // Silently handle errors for performance polling
+      }
+
+      // Update every 2 seconds
+      setTimeout(updatePerformance, 2000);
+    };
+
+    updatePerformance();
+  }
+
+  private updatePerformanceDisplay() {
+    const performanceStats = document.getElementById('performance-stats');
+    if (!performanceStats || !this.state.performanceSummary) return;
+
+    const summary = this.state.performanceSummary;
+    
+    // Update latency display
+    const avgLatency = Math.round((summary.audioAvgMs + summary.vadAvgMs + summary.sttAvgMs) / 3);
+    performanceStats.textContent = `Latency: ${avgLatency}ms | Health: ${summary.overallHealth}%`;
+    
+    // Color coding based on health
+    if (summary.overallHealth >= 90) {
+      performanceStats.style.color = 'var(--color-success)';
+    } else if (summary.overallHealth >= 70) {
+      performanceStats.style.color = 'var(--color-warning)';
+    } else {
+      performanceStats.style.color = 'var(--color-danger)';
     }
   }
 

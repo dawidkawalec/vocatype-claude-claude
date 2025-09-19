@@ -26,6 +26,11 @@ fn main() {
             vocatype_temp_lib::commands::ai_commands::transcribe_audio,
             vocatype_temp_lib::commands::ai_commands::initialize_whisper,
             vocatype_temp_lib::commands::ai_commands::get_whisper_stats,
+            
+            // Performance monitoring commands
+            vocatype_temp_lib::commands::performance_commands::get_performance_stats,
+            vocatype_temp_lib::commands::performance_commands::get_performance_summary,
+            vocatype_temp_lib::commands::performance_commands::reset_performance_stats,
         ])
         .setup(|_app| {
             // Initialize logging
